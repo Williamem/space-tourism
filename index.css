@@ -9,19 +9,38 @@
     --clr-white: 0 0% 100%;
 
     /* font-sizes */
-    --fs-200: 0.875rem;
-    --fs-300: 1rem;
-    --fs-400: 1.125rem;
+    --fs-900: clamp(5rem, 8vw + 1rem, 9.375rem);
+    --fs-800: 3.5rem;
+    --fs-700: 1.5rem;
+    --fs-600: 1rem;
     --fs-500: 1.75rem;
-    --fs-600: 2rem;
-    --fs-700: 3.5rem;
-    --fs-800: 6.25rem;
-    --fs-900: 9.375rem;
-
+    --fs-400: 0.9375rem;
+    --fs-300: 1rem;
+    --fs-200: 0.875rem;
+    
     /* font-families */
     --ff-serif: "Bellefair", serif;
     --ff-sans-cond: "Barlow Condensed", sans-serif;
     --ff-sans-normal: "Barlow", sans-serif;
+}
+
+@media (min-width: 35em) {
+    :root {
+        --fs-800: 5rem;
+        --fs-700: 2.5rem;
+        --fs-600: 1.5rem;
+        --fs-400: 1rem;
+    }
+}
+
+@media (min-width: 45em) {
+    :root {
+        /* font-sizes */
+        --fs-800: 6.25rem;
+        --fs-700: 3.5rem;
+        --fs-600: 2rem;
+        --fs-400: 1.125rem;
+    }
 }
 
 
@@ -71,6 +90,11 @@ body {
     background-color: hsl( var(--clr-dark) );
     line-height: 1.5;
     min-height: 100vh;
+
+    display: grid;
+    grid-template-rows: min-content 1fr;
+
+    overflow-x: hidden;
 }
 
 /* make images easier to work with */
@@ -115,6 +139,10 @@ select {
     gap: var(--gap, 1rem);
 }
 
+.d-block {
+    display: block;
+}
+
 /* lägger en margin-top på alla element som INTE är first-child */
 .flow > *:where(:not(:first-child)) {
     margin-top: var(--flow-space, 1rem);
@@ -126,6 +154,39 @@ select {
     margin-inline: auto;
 }
 
+.grid-container {
+    text-align: center;
+    display: grid;
+    place-items: center;
+    padding-inline: 1rem;
+}
+
+.grid-container > * {
+    max-width: 50ch;
+}
+
+@media (min-width: 45rem) {
+    .grid-container {
+        text-align: left;
+        column-gap: var(--container-gap, 2rem);
+        grid-template-columns: minmax(2rem, 1fr) repeat(2, minmax(0px, 40rem)) minmax(2rem, 1fr);
+        }
+
+    .grid-container > *:first-child {
+        grid-column: 2;
+    }
+    
+    .grid-container > *:last-child {
+        grid-column: 3;
+    }
+
+    .grid-container--home {
+        padding-bottom: max(6rem, 20vh);
+        align-items: end;
+    }
+}
+
+
 .sr-only {
     position: absolute;
     width: 1px;
@@ -136,6 +197,21 @@ select {
     clip: rect(0, 0, 0, 0);
     white-space: nowrap; /* added line */
     border: 0;
+}
+
+.skip-to-content {
+    position: absolute;
+    z-index: 9999;
+    background: hsl( var(--clr-white) );
+    color: hsl( var(--clr-dark) );
+    padding: .5em 2em;
+    margin-inline: auto;
+    transform: translateY(-100%);
+    transition: 250ms ease-in;
+}
+
+.skip-to-content:focus {
+    transform: translateY(0);
 }
 
 /* colors */
@@ -190,12 +266,14 @@ select {
 }
 
 /* ---------------- */
-/* Components */
+/* Components       */
 /* ---------------- */
 
 .large-button {
+    font-size: 2rem;
     position: relative;
-    display: grid;
+    /* setting inline grid stops if from taking up the entire screen */
+    display: inline-grid;
     z-index: 1;
     place-items: center;
     padding: 0 2em;
@@ -223,13 +301,26 @@ select {
     transform: scale(1.5);
 }
 
+/* primary header */
+
+.logo {
+    margin: 1.5rem clamp(1.5rem, 5vw, 3.5rem);
+}
+
+.primary-header {
+    justify-content: space-between;
+    align-items: center;
+}
+
 .primary-navigation {
-    --gap: 8rem;
+    --gap: clamp(1.5rem, 5vw, 3.5rem);
     --underline-gap: 2rem;
     list-style: none;
     padding: 0;
     margin: 0;
+    background: hsl( var(--clr-dark) / .95 );
 }
+
 
 .primary-navigation a {
     text-decoration: none;
@@ -238,6 +329,103 @@ select {
 .primary-navigation a > span {
     font-weight: 700;
     margin-right: .5em;
+}
+
+@supports (backdrop-filter: blur(0rem)) {
+    .primary-navigation {
+        background: hsl( var(--clr-white) / .04 );
+        backdrop-filter: blur( 2rem );
+        /* -webkit-backdrop-filter: blur( 2rem ); */
+    }
+}
+
+.mobile-nav-toggle {
+    display: none;
+}
+
+@media (max-width: 35rem) {
+    .primary-navigation {
+        --underline-gap: .5rem;
+        position: fixed;
+        z-index: 1000;
+        inset: 0 0 0 20%;
+        list-style: none;
+        padding: min(20rem, 15vh) 2rem;
+        margin: 0;
+        flex-direction: column;
+        /* this is what moves it off the screen */
+        transform: translateX(100%);
+        transition: transform 500ms ease-in-out;
+    }
+
+    .primary-navigation[data-visible="true"] {
+        /* this is what moves it back onto the screen */
+        transform: translateX(0);
+    }
+    
+    .primary-navigation.underline-indicators > .active {
+        border: none;
+    }
+
+    .mobile-nav-toggle {
+        display: block;
+        position: absolute;
+        z-index: 2000;
+        right: 1rem;
+        top: 2rem;
+        background: transparent;
+        background-image: url(./assets/shared/icon-hamburger.svg);
+        background-repeat: no-repeat;
+        background-position: center;
+        width: 1.5rem;
+        aspect-ratio: 1;
+        border: 0;
+    }
+
+    .mobile-nav-toggle[aria-expanded="true"] {
+        background-image: url(./assets/shared/icon-close.svg);
+    }
+
+    .mobile-nav-toggle:focus-visible {
+        outline: 5px solid white;
+        outline-offset: 5px;
+    }
+}
+
+@media (min-width: 35em) {
+    .primary-navigation  {
+        padding-inline: clamp(3rem, 7vw, 7rem);
+    }
+}
+
+@media (min-width: 35em) and (max-width: 44.999em) {
+    .primary-navigation a > span {
+        display: none;
+    }
+}
+
+@media (min-width: 45em) {
+    .primary-header::after {
+        content: '';
+        display: block;
+        position: relative;
+        height: 1px;
+        width: 100%;
+        margin-right: -2.5rem;
+        background: hsl( var(--clr-white) / .25 );
+        /* change the order of the elements in the dom */
+        order: 1;
+
+    }
+
+    nav {
+        /* change the order of the elements in the dom */
+        order: 2;
+    }
+
+    .primary-navigation {
+        margin-block: 2rem;
+    }
 }
 
 .underline-indicators > * {
@@ -309,4 +497,30 @@ select {
 .number-indicators > [aria-selected="true"] {
     background-color: hsl( var(--clr-white) );
     color: hsl( var(--clr-dark) );
+}
+
+
+/* ------------------------ */
+/* Page specific background */
+/* ------------------------ */
+
+/* Home */
+
+.home {
+    background-size: cover;
+    background-position: bottom center;
+    background-image: url(./assets/home/background-home-mobile.jpg);
+}
+
+@media (min-width: 35rem) {
+    .home {
+        background-position: center center;
+        background-image: url(./assets/home/background-home-tablet.jpg);
+    }
+}
+
+@media (min-width: 45rem) {
+    .home {
+    background-image: url(./assets/home/background-home-desktop.jpg);
+    }
 }

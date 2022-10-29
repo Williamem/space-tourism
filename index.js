@@ -11,3 +11,13 @@ navToggle.addEventListener('click', () => {
         navToggle.setAttribute('aria-expanded', false);
     }
 })
+
+const hed = () => {
+    let res = 1;
+    for(let i = 0; i<64; i++) {
+        res = res * 2;
+    }
+    return res;
+}
+
+console.log(hed());
